@@ -16,14 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest cython
+        pip install flake8 pytest cython==3.0.0
        # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
@@ -33,31 +33,34 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Build with Cython
       id: build
-      run: echo "::set-output name=version::$(python make_release.py)" 
+      # run: echo "::set-output name=version::$(python make_release.py)"
+      # force bash shell on windows too
+      shell: bash 
+      run: echo "version=$(python make_release.py)" >> $GITHUB_OUTPUT
     - name: Upload windows zip
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        path: molecular_${{steps.build.outputs.version}}_win.zip
+        path: molecular_${{ steps.build.outputs.version }}_win.zip
         name: molecular_win
 
   build_linux:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: Install dependencies
       run: |
-        # attempt to install libpython.a for 3.10
+        # attempt to install libpython.a for 3.11
         sudo add-apt-repository ppa:deadsnakes/ppa
         sudo apt update
-        sudo apt install libpython3.10-dev
+        sudo apt install libpython3.11-dev
         python -m pip install --upgrade pip
-        pip install flake8 pytest cython
+        pip install flake8 pytest cython==3.0.0
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -66,11 +69,12 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Build with Cython
       id: build
-      run: echo "::set-output name=version::$(python make_release.py)"
+      #run: echo "::set-output name=version::$(python make_release.py)"
+      run: echo "version=$(python make_release.py)" >> $GITHUB_OUTPUT
     - name: Upload linux zip
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        path: molecular_${{steps.build.outputs.version}}_linux.zip
+        path: molecular_${{ steps.build.outputs.version }}_linux.zip
         name: molecular_linux
   
   build_macos:
@@ -79,14 +83,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest cython
+        pip install flake8 pytest cython==3.0.0
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -95,11 +99,12 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Build with Cython
       id: build
-      run: echo "::set-output name=version::$(python make_release.py)"
+      #run: echo "::set-output name=version::$(python make_release.py)"
+      run: echo "version=$(python make_release.py)" >> $GITHUB_OUTPUT
     - name: Upload mac zip
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        path: molecular_${{steps.build.outputs.version}}_mac.zip
+        path: molecular_${{ steps.build.outputs.version }}_mac.zip
         name: molecular_mac
 
   upload_draft:
@@ -111,15 +116,15 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: molecular_win
         
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: molecular_linux
         
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: molecular_mac
         

@@ -860,7 +860,6 @@ cdef void collide(Particle *par)nogil:
 
                         create_link(par.id,par.sys.link_max * 2, par2.id)
 
-
 cdef void solve_link(Particle *par)nogil:
     global parlist
     global deltatime
@@ -1345,7 +1344,6 @@ cdef void KDTree_rnn_search(
                 3,
                 depth + 1
             )
-
 
 cdef void create_link(int par_id, int max_link, int parothers_id=-1)nogil:
     global kdtree
